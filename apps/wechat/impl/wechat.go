@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/eatmoreapple/openwechat"
 	"github.com/solodba/ichatgpt/apps/chat"
@@ -59,13 +60,22 @@ func (i *impl) ChatBot(ctx context.Context) error {
 					imageReq := image.NewCreateImageRequest()
 					imageReq.Model = "dall-e-3"
 					imageReq.Prompt = contentSegList[1]
-					chatResp, err := chatgptClient.CreateImage(context.Background(), imageReq)
+					ctx, cancel := context.WithTimeout(context.Background(), time.Hour*1)
+					defer cancel()
+					imageResp, err := chatgptClient.CreateImage(ctx, imageReq)
 					if err != nil {
 						fmt.Println(err.Error())
 						return
 					}
-					httpClient := http.Client{}
-					httpResp, err := httpClient.Get(chatResp.Data.Data[0].Url)
+					fmt.Println(imageResp.Data)
+					if len(imageResp.Data.Data) == 0 {
+						msg.ReplyText("请重新提问,谢谢!")
+						return
+					}
+					httpClient := http.Client{
+						Timeout: time.Duration(10 * time.Minute),
+					}
+					httpResp, err := httpClient.Get(imageResp.Data.Data[0].Url)
 					if err != nil {
 						fmt.Println(err.Error())
 						return
@@ -82,7 +92,9 @@ func (i *impl) ChatBot(ctx context.Context) error {
 					item2.Role = "user"
 					item2.Content = msg.Content
 					chatReq.AddItems(item1, item2)
-					chatResp, err := chatgptClient.CreateChat(context.Background(), chatReq)
+					ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
+					defer cancel()
+					chatResp, err := chatgptClient.CreateChat(ctx, chatReq)
 					if err != nil {
 						fmt.Println(err.Error())
 						return
