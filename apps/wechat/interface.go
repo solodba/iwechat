@@ -16,5 +16,5 @@ type Service interface {
 	WechatLogin(context.Context) error
 	GetWechatUsers(context.Context) (openwechat.Friends, error)
 	GetWechatGroups(context.Context) (openwechat.Groups, error)
-	ChatTextBot(context.Context) error
+	ChatBot(context.Context) error
 }

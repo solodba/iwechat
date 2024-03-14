@@ -25,7 +25,7 @@ func NewWechatService() *WechatService {
 
 // Wechat服务启动方法
 func (w *WechatService) Start() error {
-	return w.svc.ChatTextBot(ctx)
+	return w.svc.ChatBot(ctx)
 }
 
 // Wechat服务停止方法

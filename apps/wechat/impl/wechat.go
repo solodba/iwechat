@@ -3,9 +3,11 @@ package impl
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/eatmoreapple/openwechat"
 	"github.com/solodba/ichatgpt/apps/chat"
+	"github.com/solodba/ichatgpt/apps/image"
 	"github.com/solodba/iwechat/client/rest"
 )
 
@@ -33,7 +35,7 @@ func (i *impl) GetWechatGroups(ctx context.Context) (openwechat.Groups, error) {
 	return self.Groups()
 }
 
-func (i *impl) ChatTextBot(ctx context.Context) error {
+func (i *impl) ChatBot(ctx context.Context) error {
 	err := i.WechatLogin(ctx)
 	if err != nil {
 		return err
@@ -51,22 +53,36 @@ func (i *impl) ChatTextBot(ctx context.Context) error {
 		chatgptClient := rest.NewClient(rest.NewConfig())
 		for _, remarkname := range i.c.WeChat.RemarkNameList {
 			if msg.IsText() && sendUser.RemarkName == remarkname {
-				chatReq := chat.NewCreateChatRequest()
-				chatReq.Model = "gpt-3.5-turbo"
-				item1 := chat.NewMessagesItem()
-				item1.Role = "system"
-				item1.Content = "You are a helpful assistant."
-				item2 := chat.NewMessagesItem()
-				item2.Role = "user"
-				item2.Content = msg.Content
-				chatReq.AddItems(item1, item2)
-				chatResp, err := chatgptClient.CreateChat(context.Background(), chatReq)
-				if err != nil {
-					fmt.Println(err.Error())
+				contentSegList := strings.Split(msg.Content, "-")
+				if contentSegList[0] == "image" {
+					imageReq := image.NewCreateImageRequest()
+					imageReq.Model = "dall-e-3"
+					imageReq.Prompt = contentSegList[1]
+					chatResp, err := chatgptClient.CreateImage(context.Background(), imageReq)
+					if err != nil {
+						fmt.Println(err.Error())
+						return
+					}
+					msg.ReplyText(chatResp.Data.Data[0].Url)
+					return
+				} else {
+					chatReq := chat.NewCreateChatRequest()
+					chatReq.Model = "gpt-3.5-turbo"
+					item1 := chat.NewMessagesItem()
+					item1.Role = "system"
+					item1.Content = "You are a helpful assistant."
+					item2 := chat.NewMessagesItem()
+					item2.Role = "user"
+					item2.Content = msg.Content
+					chatReq.AddItems(item1, item2)
+					chatResp, err := chatgptClient.CreateChat(context.Background(), chatReq)
+					if err != nil {
+						fmt.Println(err.Error())
+						return
+					}
+					msg.ReplyText(chatResp.Data.Choices[0].Messages.Content)
 					return
 				}
-				msg.ReplyText(chatResp.Data.Choices[0].Messages.Content)
-				return
 			}
 		}
 	}
