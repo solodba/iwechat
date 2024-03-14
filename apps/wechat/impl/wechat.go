@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/eatmoreapple/openwechat"
@@ -63,7 +64,13 @@ func (i *impl) ChatBot(ctx context.Context) error {
 						fmt.Println(err.Error())
 						return
 					}
-					msg.ReplyText(chatResp.Data.Data[0].Url)
+					httpClient := http.Client{}
+					httpResp, err := httpClient.Get(chatResp.Data.Data[0].Url)
+					if err != nil {
+						fmt.Println(err.Error())
+						return
+					}
+					msg.ReplyImage(httpResp.Body)
 					return
 				} else {
 					chatReq := chat.NewCreateChatRequest()
