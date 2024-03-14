@@ -69,7 +69,7 @@ func (i *impl) ChatBot(ctx context.Context) error {
 					}
 					fmt.Println(imageResp.Data)
 					if len(imageResp.Data.Data) == 0 {
-						msg.ReplyText("请重新提问,谢谢!")
+						msg.ReplyText("内容可能违法,请重新提问,谢谢!")
 						return
 					}
 					httpClient := http.Client{
