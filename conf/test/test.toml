@@ -1,0 +1,5 @@
+[app]
+name = "iwechat"
+
+[wechat]
+remark_name_list = ["张豪","叶松"]
