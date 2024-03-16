@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -100,6 +101,7 @@ func (i *impl) ChatBot(ctx context.Context) error {
 				}
 				voiceFilePath := `C:\Users\Admin\Desktop\ichatgpt\audio\voice.mp3`
 				f, err := os.Open(voiceFilePath)
+				defer f.Close()
 				if err != nil {
 					fmt.Println(err.Error())
 					return
@@ -127,10 +129,38 @@ func (i *impl) ChatBot(ctx context.Context) error {
 			}
 		}
 		if flag && msg.IsVoice() {
-			switch contentSegList[0] {
-			case "音转文":
+			voiceFilePath := `C:\Users\Admin\Desktop\ichatgpt\audio\voice.mp3`
+			voiceResp, err := msg.GetVoice()
+			if err != nil {
+				fmt.Println(err.Error())
 				return
 			}
+			f, err := os.OpenFile(voiceFilePath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0777)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			defer f.Close()
+			_, err = io.Copy(f, voiceResp.Body)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			transcriptionReq := audio.NewCreateTranscriptionRequest()
+			transcriptionReq.Model = "whisper-1"
+			transcriptionReq.Language = "zh"
+			transcriptionReq.ResponseFormat = "json"
+			transcriptionReq.FilePath = "audio"
+			transcriptionReq.FileName = "voice.mp3"
+			ctx, cancel := context.WithTimeout(context.Background(), time.Hour*1)
+			defer cancel()
+			transcriptionResp, err := chatgptClient.CreateTranscription(ctx, transcriptionReq)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			msg.ReplyText(transcriptionResp.Data.Text)
+			return
 		}
 	}
 	i.bot.Block()
