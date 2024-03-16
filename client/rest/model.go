@@ -26,6 +26,11 @@ type CreateTranscriptionResp struct {
 	Data *audio.CreateAudioResponse `json:"data"`
 }
 
+type CreateTranslationResp struct {
+	Code int                        `json:"code"`
+	Data *audio.CreateAudioResponse `json:"data"`
+}
+
 func NewCreateChatResp() *CreateChatResp {
 	return &CreateChatResp{
 		Data: chat.NewCreateChatResponse(),
@@ -44,4 +49,8 @@ func NewCreateSpeechResp() *CreateSpeechResp {
 
 func NewCreateTranscriptionResp() *CreateTranscriptionResp {
 	return &CreateTranscriptionResp{}
+}
+
+func NewCreateTranslationResp() *CreateTranslationResp {
+	return &CreateTranslationResp{}
 }

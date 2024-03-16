@@ -146,20 +146,34 @@ func (i *impl) ChatBot(ctx context.Context) error {
 				fmt.Println(err.Error())
 				return
 			}
-			transcriptionReq := audio.NewCreateTranscriptionRequest()
-			transcriptionReq.Model = "whisper-1"
-			transcriptionReq.Language = "zh"
-			transcriptionReq.ResponseFormat = "json"
-			transcriptionReq.FilePath = "audio"
-			transcriptionReq.FileName = "voice.mp3"
+			// transcriptionReq := audio.NewCreateTranscriptionRequest()
+			// transcriptionReq.Model = "whisper-1"
+			// transcriptionReq.Language = "zh"
+			// transcriptionReq.ResponseFormat = "json"
+			// transcriptionReq.FilePath = "audio"
+			// transcriptionReq.FileName = "voice.mp3"
+			// ctx, cancel := context.WithTimeout(context.Background(), time.Hour*1)
+			// defer cancel()
+			// transcriptionResp, err := chatgptClient.CreateTranscription(ctx, transcriptionReq)
+			// if err != nil {
+			// 	fmt.Println(err.Error())
+			// 	return
+			// }
+			// msg.ReplyText(transcriptionResp.Data.Text)
+			translationReq := audio.NewCreateTranslationRequest()
+			translationReq.Model = "whisper-1"
+			translationReq.FileName = "voice.mp3"
+			translationReq.FilePath = "audio"
+			translationReq.ResponseFormat = "json"
+			translationReq.Temperature = 0.2
 			ctx, cancel := context.WithTimeout(context.Background(), time.Hour*1)
 			defer cancel()
-			transcriptionResp, err := chatgptClient.CreateTranscription(ctx, transcriptionReq)
+			translationResp, err := chatgptClient.CreateTranslation(ctx, translationReq)
 			if err != nil {
 				fmt.Println(err.Error())
 				return
 			}
-			msg.ReplyText(transcriptionResp.Data.Text)
+			msg.ReplyText(translationResp.Data.Text)
 			return
 		}
 	}

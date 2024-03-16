@@ -23,3 +23,12 @@ func (c *Client) CreateTranscription(ctx context.Context, req *audio.CreateTrans
 	}
 	return createTranscriptionResponse, nil
 }
+
+func (c *Client) CreateTranslation(ctx context.Context, req *audio.CreateTranslationRequest) (*CreateTranslationResp, error) {
+	createTranslationResponse := NewCreateTranslationResp()
+	err := c.c.Post("audio/translation").Body(req).Do(ctx).Into(createTranslationResponse)
+	if err != nil {
+		return nil, err
+	}
+	return createTranslationResponse, nil
+}

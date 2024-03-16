@@ -10,7 +10,7 @@ import (
 func TestCreateSpeech(t *testing.T) {
 	req := audio.NewCreateSpeechRequest()
 	req.Model = "tts-1-hd"
-	req.Input = "大家好，我叫沃尔夫冈，来自德国。你今天要去哪里?"
+	req.Input = "你好, 我的名字是韩梅梅"
 	req.Voice = "alloy"
 	req.FilePath = "audio"
 	req.FileName = "voice.mp3"
@@ -21,7 +21,7 @@ func TestCreateSpeech(t *testing.T) {
 	t.Log(tools.MustToJson(speechResp))
 }
 
-func TestTranscription(t *testing.T) {
+func TestCreateTranscription(t *testing.T) {
 	req := audio.NewCreateTranscriptionRequest()
 	req.Model = "whisper-1"
 	req.FilePath = "audio"
@@ -33,4 +33,16 @@ func TestTranscription(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(tools.MustToJson(transcriptionResp))
+}
+
+func TestCreateTranslation(t *testing.T) {
+	req := audio.NewCreateTranslationRequest()
+	req.Model = "whisper-1"
+	req.FileName = "voice.mp3"
+	req.FilePath = "audio"
+	translationResp, err := client.CreateTranslation(ctx, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(tools.MustToJson(translationResp))
 }
