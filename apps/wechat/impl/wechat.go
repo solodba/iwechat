@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -90,7 +91,20 @@ func (i *impl) ChatBot(ctx context.Context) error {
 				speechReq.Voice = "alloy"
 				speechReq.FilePath = "audio"
 				speechReq.FileName = "voice.mp3"
-				return
+				ctx, cancel := context.WithTimeout(context.Background(), time.Hour*1)
+				defer cancel()
+				_, err := chatgptClient.CreateSpeech(ctx, speechReq)
+				if err != nil {
+					fmt.Println(err.Error())
+					return
+				}
+				voiceFilePath := `C:\Users\Admin\Desktop\ichatgpt\audio\voice.mp3`
+				f, err := os.Open(voiceFilePath)
+				if err != nil {
+					fmt.Println(err.Error())
+					return
+				}
+				msg.ReplyFile(f)
 			default:
 				chatReq := chat.NewCreateChatRequest()
 				chatReq.Model = "gpt-4-0125-preview"

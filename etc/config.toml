@@ -2,4 +2,4 @@
 name = "iwechat"
 
 [wechat]
-remark_name_list = ["妈妈"]
+remark_name_list = ["妈妈","爸爸"]
