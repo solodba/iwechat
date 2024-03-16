@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/eatmoreapple/openwechat"
+	"github.com/solodba/ichatgpt/apps/audio"
 	"github.com/solodba/ichatgpt/apps/chat"
 	"github.com/solodba/ichatgpt/apps/image"
 	"github.com/solodba/iwechat/client/rest"
@@ -56,7 +57,8 @@ func (i *impl) ChatBot(ctx context.Context) error {
 		if flag && msg.IsText() {
 			contentSegList := strings.Split(msg.Content, "-")
 			chatgptClient := rest.NewClient(rest.NewConfig())
-			if contentSegList[0] == "image" {
+			switch contentSegList[0] {
+			case "图片":
 				imageReq := image.NewCreateImageRequest()
 				imageReq.Model = "dall-e-3"
 				imageReq.Prompt = contentSegList[1]
@@ -81,9 +83,17 @@ func (i *impl) ChatBot(ctx context.Context) error {
 				}
 				msg.ReplyImage(httpResp.Body)
 				return
-			} else {
+			case "文转音":
+				speechReq := audio.NewCreateSpeechRequest()
+				speechReq.Model = "tts-1-hd"
+				speechReq.Input = contentSegList[1]
+				speechReq.Voice = "alloy"
+				speechReq.FilePath = "audio"
+				speechReq.FileName = "voice.mp3"
+				return
+			default:
 				chatReq := chat.NewCreateChatRequest()
-				chatReq.Model = "gpt-3.5-turbo"
+				chatReq.Model = "gpt-4-0125-preview"
 				item1 := chat.NewMessagesItem()
 				item1.Role = "system"
 				item1.Content = "You are a helpful assistant."

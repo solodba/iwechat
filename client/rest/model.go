@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"github.com/solodba/ichatgpt/apps/audio"
 	"github.com/solodba/ichatgpt/apps/chat"
 	"github.com/solodba/ichatgpt/apps/image"
 )
@@ -15,6 +16,11 @@ type CreateImageResp struct {
 	Data *image.CreateImageResponse `json:"data"`
 }
 
+type CreateSpeechResp struct {
+	Code int                         `json:"code"`
+	Data *audio.CreateSpeechResponse `json:"data"`
+}
+
 func NewCreateChatResp() *CreateChatResp {
 	return &CreateChatResp{
 		Data: chat.NewCreateChatResponse(),
@@ -25,4 +31,8 @@ func NewCreateImageResp() *CreateImageResp {
 	return &CreateImageResp{
 		Data: image.NewCreateImageResponse(),
 	}
+}
+
+func NewCreateSpeechResp() *CreateSpeechResp {
+	return &CreateSpeechResp{}
 }
