@@ -146,6 +146,8 @@ func (i *impl) ChatBot(ctx context.Context) error {
 				fmt.Println(err.Error())
 				return
 			}
+
+			// 语音转文字
 			// transcriptionReq := audio.NewCreateTranscriptionRequest()
 			// transcriptionReq.Model = "whisper-1"
 			// transcriptionReq.Language = "zh"
@@ -160,20 +162,73 @@ func (i *impl) ChatBot(ctx context.Context) error {
 			// 	return
 			// }
 			// msg.ReplyText(transcriptionResp.Data.Text)
-			translationReq := audio.NewCreateTranslationRequest()
-			translationReq.Model = "whisper-1"
-			translationReq.FileName = "voice.mp3"
-			translationReq.FilePath = "audio"
-			translationReq.ResponseFormat = "json"
-			translationReq.Temperature = 0.2
+
+			// 语音翻译成中文
+			// translationReq := audio.NewCreateTranslationRequest()
+			// translationReq.Model = "whisper-1"
+			// translationReq.FileName = "voice.mp3"
+			// translationReq.FilePath = "audio"
+			// translationReq.ResponseFormat = "json"
+			// translationReq.Temperature = 0.2
+			// ctx, cancel := context.WithTimeout(context.Background(), time.Hour*1)
+			// defer cancel()
+			// translationResp, err := chatgptClient.CreateTranslation(ctx, translationReq)
+			// if err != nil {
+			// 	fmt.Println(err.Error())
+			// 	return
+			// }
+			// msg.ReplyText(translationResp.Data.Text)
+
+			// 语音问答
+			transcriptionReq := audio.NewCreateTranscriptionRequest()
+			transcriptionReq.Model = "whisper-1"
+			transcriptionReq.Language = "zh"
+			transcriptionReq.ResponseFormat = "json"
+			transcriptionReq.FilePath = "audio"
+			transcriptionReq.FileName = "voice.mp3"
 			ctx, cancel := context.WithTimeout(context.Background(), time.Hour*1)
 			defer cancel()
-			translationResp, err := chatgptClient.CreateTranslation(ctx, translationReq)
+			transcriptionResp, err := chatgptClient.CreateTranscription(ctx, transcriptionReq)
 			if err != nil {
 				fmt.Println(err.Error())
 				return
 			}
-			msg.ReplyText(translationResp.Data.Text)
+			chatReq := chat.NewCreateChatRequest()
+			chatReq.Model = "gpt-4-0125-preview"
+			item1 := chat.NewMessagesItem()
+			item1.Role = "system"
+			item1.Content = "You are a helpful assistant."
+			item2 := chat.NewMessagesItem()
+			item2.Role = "user"
+			item2.Content = transcriptionResp.Data.Text
+			chatReq.AddItems(item1, item2)
+			ctx, cancel = context.WithTimeout(context.Background(), time.Minute*10)
+			defer cancel()
+			chatResp, err := chatgptClient.CreateChat(ctx, chatReq)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			speechReq := audio.NewCreateSpeechRequest()
+			speechReq.Model = "tts-1-hd"
+			speechReq.Input = chatResp.Data.Choices[0].Messages.Content
+			speechReq.Voice = "alloy"
+			speechReq.FilePath = "audio"
+			speechReq.FileName = "voice.mp3"
+			ctx, cancel = context.WithTimeout(context.Background(), time.Hour*1)
+			defer cancel()
+			_, err = chatgptClient.CreateSpeech(ctx, speechReq)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			f, err = os.Open(voiceFilePath)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			defer f.Close()
+			msg.ReplyFile(f)
 			return
 		}
 	}
