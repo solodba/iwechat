@@ -55,9 +55,9 @@ func (i *impl) ChatBot(ctx context.Context) error {
 			return
 		}
 		flag := IsInRemarkNameList(sendUser.RemarkName, i.c.WeChat.RemarkNameList)
+		contentSegList := strings.Split(msg.Content, "-")
+		chatgptClient := rest.NewClient(rest.NewConfig())
 		if flag && msg.IsText() {
-			contentSegList := strings.Split(msg.Content, "-")
-			chatgptClient := rest.NewClient(rest.NewConfig())
 			switch contentSegList[0] {
 			case "图片":
 				imageReq := image.NewCreateImageRequest()
@@ -123,6 +123,12 @@ func (i *impl) ChatBot(ctx context.Context) error {
 					return
 				}
 				msg.ReplyText(chatResp.Data.Choices[0].Messages.Content)
+				return
+			}
+		}
+		if flag && msg.IsVoice() {
+			switch contentSegList[0] {
+			case "音转文":
 				return
 			}
 		}
