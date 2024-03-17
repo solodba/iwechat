@@ -2,4 +2,5 @@
 name = "iwechat"
 
 [wechat]
-remark_name_list = ["妈妈","爸爸"]
+remark_name_list = ["张豪"]
+voice_file_path = 'C:\Users\Administrator\Desktop\ichatgpt\audio\audio.mp3'
