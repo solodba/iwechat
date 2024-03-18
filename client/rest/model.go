@@ -43,6 +43,11 @@ type CreateFineTuneJobResp struct {
 	Data *finetune.FineTuneJobItem `json:"data"`
 }
 
+type RetrieveFineTuneJobResp struct {
+	Code int                       `json:"code"`
+	Data *finetune.FineTuneJobItem `json:"data"`
+}
+
 func NewCreateChatResp() *CreateChatResp {
 	return &CreateChatResp{
 		Data: chat.NewCreateChatResponse(),
@@ -81,6 +86,12 @@ func NewUploadFileResp() *UploadFileResp {
 
 func NewCreateFineTuneJobResp() *CreateFineTuneJobResp {
 	return &CreateFineTuneJobResp{
+		Data: finetune.NewFineTuneJobItem(),
+	}
+}
+
+func NewRetrieveFineTuneJobResp() *RetrieveFineTuneJobResp {
+	return &RetrieveFineTuneJobResp{
 		Data: finetune.NewFineTuneJobItem(),
 	}
 }
