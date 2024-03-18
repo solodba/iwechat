@@ -18,6 +18,10 @@ import (
 	"github.com/solodba/iwechat/client/rest"
 )
 
+var (
+	FINE_TUNING_MODEL string
+)
+
 func (i *impl) WechatLogin(ctx context.Context) error {
 	i.bot.UUIDCallback = openwechat.PrintlnQrcodeUrl
 	if err := i.bot.Login(); err != nil {
@@ -109,6 +113,25 @@ func (i *impl) ChatBot(ctx context.Context) error {
 					return
 				}
 				msg.ReplyFile(f)
+			case "微调":
+				chatReq := chat.NewCreateChatRequest()
+				chatReq.Model = FINE_TUNING_MODEL
+				item1 := chat.NewMessagesItem()
+				item1.Role = "system"
+				item1.Content = "Marv is a factual chatbot that is also sarcastic."
+				item2 := chat.NewMessagesItem()
+				item2.Role = "user"
+				item2.Content = contentSegList[1]
+				chatReq.AddItems(item1, item2)
+				ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
+				defer cancel()
+				chatResp, err := chatgptClient.CreateChat(ctx, chatReq)
+				if err != nil {
+					fmt.Println(err.Error())
+					return
+				}
+				msg.ReplyText(chatResp.Data.Choices[0].Messages.Content)
+				return
 			default:
 				chatReq := chat.NewCreateChatRequest()
 				chatReq.Model = "gpt-4-0125-preview"
@@ -233,6 +256,7 @@ func (i *impl) ChatBot(ctx context.Context) error {
 			return
 		}
 
+		// 模型微调
 		if flag && msg.HasFile() {
 			fileResp, err := msg.GetFile()
 			if err != nil {
@@ -270,6 +294,21 @@ func (i *impl) ChatBot(ctx context.Context) error {
 				return
 			}
 			msg.ReplyText(fmt.Sprintf("模型微调[%s]已经开始, 请稍等, 谢谢!", createFineTuneJobResp.Data.Id))
+			retrieveFineTuneJobReq := finetune.NewRetrieveFineTuneJobRequest()
+			retrieveFineTuneJobReq.FineTuningJobId = createFineTuneJobResp.Data.Id
+			for {
+				retrieveFineTuneJobResp, err := chatgptClient.RetrieveFineTuneJob(ctx, retrieveFineTuneJobReq)
+				if err != nil {
+					fmt.Println(err.Error())
+					return
+				}
+				if retrieveFineTuneJobResp.Data.Status == "succeeded" {
+					msg.ReplyText(fmt.Sprintf("模型微调[%s]已经完成, 谢谢!", createFineTuneJobResp.Data.Id))
+					fmt.Println(retrieveFineTuneJobResp.Data.FineTunedModel)
+					FINE_TUNING_MODEL = retrieveFineTuneJobResp.Data.FineTunedModel
+					break
+				}
+			}
 		}
 	}
 	i.bot.Block()
