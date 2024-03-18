@@ -12,6 +12,7 @@ import (
 	"github.com/eatmoreapple/openwechat"
 	"github.com/solodba/ichatgpt/apps/audio"
 	"github.com/solodba/ichatgpt/apps/chat"
+	"github.com/solodba/ichatgpt/apps/file"
 	"github.com/solodba/ichatgpt/apps/image"
 	"github.com/solodba/iwechat/client/rest"
 )
@@ -248,7 +249,18 @@ func (i *impl) ChatBot(ctx context.Context) error {
 				fmt.Println(err.Error())
 				return
 			}
-
+			uploadFileReq := file.NewUploadFileRequest()
+			uploadFileReq.FilePath = "file"
+			uploadFileReq.FileName = "finetuning.jsonl"
+			uploadFileReq.Purpose = "fine-tune"
+			ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
+			defer cancel()
+			uploadFileResp, err := chatgptClient.UploadFile(ctx, uploadFileReq)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			fmt.Println(uploadFileResp.Data.Id)
 		}
 	}
 	i.bot.Block()

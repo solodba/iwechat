@@ -4,6 +4,7 @@ import (
 	"github.com/solodba/ichatgpt/apps/audio"
 	"github.com/solodba/ichatgpt/apps/chat"
 	"github.com/solodba/ichatgpt/apps/file"
+	"github.com/solodba/ichatgpt/apps/finetune"
 	"github.com/solodba/ichatgpt/apps/image"
 )
 
@@ -37,6 +38,11 @@ type UploadFileResp struct {
 	Data *file.FileResponseItem `json:"data"`
 }
 
+type CreateFineTuneJobResp struct {
+	Code int                       `json:"code"`
+	Data *finetune.FineTuneJobItem `json:"data"`
+}
+
 func NewCreateChatResp() *CreateChatResp {
 	return &CreateChatResp{
 		Data: chat.NewCreateChatResponse(),
@@ -50,17 +56,31 @@ func NewCreateImageResp() *CreateImageResp {
 }
 
 func NewCreateSpeechResp() *CreateSpeechResp {
-	return &CreateSpeechResp{}
+	return &CreateSpeechResp{
+		Data: audio.NewCreateSpeechResponse(),
+	}
 }
 
 func NewCreateTranscriptionResp() *CreateTranscriptionResp {
-	return &CreateTranscriptionResp{}
+	return &CreateTranscriptionResp{
+		Data: audio.NewCreateAudioResponse(),
+	}
 }
 
 func NewCreateTranslationResp() *CreateTranslationResp {
-	return &CreateTranslationResp{}
+	return &CreateTranslationResp{
+		Data: audio.NewCreateAudioResponse(),
+	}
 }
 
 func NewUploadFileResp() *UploadFileResp {
-	return &UploadFileResp{}
+	return &UploadFileResp{
+		Data: file.NewFileResponseItem(),
+	}
+}
+
+func NewCreateFineTuneJobResp() *CreateFineTuneJobResp {
+	return &CreateFineTuneJobResp{
+		Data: finetune.NewFineTuneJobItem(),
+	}
 }
