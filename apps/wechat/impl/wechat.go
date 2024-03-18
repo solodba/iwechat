@@ -13,6 +13,7 @@ import (
 	"github.com/solodba/ichatgpt/apps/audio"
 	"github.com/solodba/ichatgpt/apps/chat"
 	"github.com/solodba/ichatgpt/apps/file"
+	"github.com/solodba/ichatgpt/apps/finetune"
 	"github.com/solodba/ichatgpt/apps/image"
 	"github.com/solodba/iwechat/client/rest"
 )
@@ -260,7 +261,15 @@ func (i *impl) ChatBot(ctx context.Context) error {
 				fmt.Println(err.Error())
 				return
 			}
-			fmt.Println(uploadFileResp.Data.Id)
+			createFineTuneJobReq := finetune.NewCreateFineTuneJobRequest()
+			createFineTuneJobReq.Model = "gpt-3.5-turbo-0125"
+			createFineTuneJobReq.TrainingFile = uploadFileResp.Data.Id
+			createFineTuneJobResp, err := chatgptClient.CreateFineTuneJob(ctx, createFineTuneJobReq)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			msg.ReplyText(fmt.Sprintf("模型微调[%s]已经开始, 请稍等, 谢谢!", createFineTuneJobResp.Data.Id))
 		}
 	}
 	i.bot.Block()
