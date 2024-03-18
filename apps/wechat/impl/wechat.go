@@ -58,6 +58,7 @@ func (i *impl) ChatBot(ctx context.Context) error {
 		flag := IsInRemarkNameList(sendUser.RemarkName, i.c.WeChat.RemarkNameList)
 		contentSegList := strings.Split(msg.Content, "-")
 		chatgptClient := rest.NewClient(rest.NewConfig())
+		// 文字聊天和文字转图片
 		if flag && msg.IsText() {
 			switch contentSegList[0] {
 			case "图片":
@@ -228,6 +229,26 @@ func (i *impl) ChatBot(ctx context.Context) error {
 			defer f.Close()
 			msg.ReplyFile(f)
 			return
+		}
+
+		if flag && msg.HasFile() {
+			fileResp, err := msg.GetFile()
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			f, err := os.OpenFile(i.c.WeChat.FileTuningFilePath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0777)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			defer f.Close()
+			_, err = io.Copy(f, fileResp.Body)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
 		}
 	}
 	i.bot.Block()

@@ -32,10 +32,11 @@ type App struct {
 
 // WeChat结构体
 type WeChat struct {
-	RemarkNameList []string `toml:"remark_name_list" env:"WECHAT_REMARK_NAME_LIST" envSeparator:","`
-	VoiceFilePath  string   `toml:"voice_file_path" env:"WECHAT_VOICE_FILE_PATH"`
-	lock           sync.Mutex
-	bot            *openwechat.Bot
+	RemarkNameList     []string `toml:"remark_name_list" env:"WECHAT_REMARK_NAME_LIST" envSeparator:","`
+	VoiceFilePath      string   `toml:"voice_file_path" env:"WECHAT_VOICE_FILE_PATH"`
+	FileTuningFilePath string   `toml:"file_tuning_file_path" env:"WECHAT_FILE_TUNING_FILE_PATH"`
+	lock               sync.Mutex
+	bot                *openwechat.Bot
 }
 
 // App初始化函数

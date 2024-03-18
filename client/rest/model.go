@@ -3,6 +3,7 @@ package rest
 import (
 	"github.com/solodba/ichatgpt/apps/audio"
 	"github.com/solodba/ichatgpt/apps/chat"
+	"github.com/solodba/ichatgpt/apps/file"
 	"github.com/solodba/ichatgpt/apps/image"
 )
 
@@ -31,6 +32,11 @@ type CreateTranslationResp struct {
 	Data *audio.CreateAudioResponse `json:"data"`
 }
 
+type UploadFileResp struct {
+	Code int                    `json:"code"`
+	Data *file.FileResponseItem `json:"data"`
+}
+
 func NewCreateChatResp() *CreateChatResp {
 	return &CreateChatResp{
 		Data: chat.NewCreateChatResponse(),
@@ -53,4 +59,8 @@ func NewCreateTranscriptionResp() *CreateTranscriptionResp {
 
 func NewCreateTranslationResp() *CreateTranslationResp {
 	return &CreateTranslationResp{}
+}
+
+func NewUploadFileResp() *UploadFileResp {
+	return &UploadFileResp{}
 }

@@ -14,6 +14,7 @@ func TestLoadConfigFromToml(t *testing.T) {
 	t.Log(conf.C().App.Name)
 	t.Log(conf.C().WeChat.RemarkNameList)
 	t.Log(conf.C().WeChat.VoiceFilePath)
+	t.Log(conf.C().WeChat.FileTuningFilePath)
 }
 
 func TestLoadConfigFromEnv(t *testing.T) {
@@ -24,4 +25,5 @@ func TestLoadConfigFromEnv(t *testing.T) {
 	t.Log(conf.C().App.Name)
 	t.Log(conf.C().WeChat.RemarkNameList)
 	t.Log(conf.C().WeChat.VoiceFilePath)
+	t.Log(conf.C().WeChat.FileTuningFilePath)
 }
